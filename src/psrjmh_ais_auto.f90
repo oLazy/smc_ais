@@ -2451,7 +2451,7 @@ COMPLEX(KIND=RP), DIMENSION(:), ALLOCATABLE :: v,rv,vc1
 COMPLEX(KIND=RP), DIMENSION(:,:), ALLOCATABLE :: zz,th,sinth,k
 COMPLEX(KIND=RP), DIMENSION(NANG,nfrq) :: znlay,znlay1,zin
 COMPLEX(KIND=RP), DIMENSION(NANG,nfrq) :: tankd
-COMPLEX(KIND=RP) :: CACOS,CTAN
+COMPLEX(KIND=RP) :: CACOS!,CTAN
 LOGICAL :: ISNAN
 !REAL(KIND=RP):: t1,t2
 
@@ -2509,14 +2509,16 @@ DO ifr = 1,nfrq
       IF(NLAY == 1)THEN ! HALFSPACE
          reftmp(iang,ifr)=(zz(iang,2) - zz(iang,1) )/(zz(iang,2) + zz(iang,1));
       ELSE
-         tankd(iang,ifr) = CTAN( k(ifr,NLAY)*d(NLAY-1)*sinth(iang,NLAY) )
+!         tankd(iang,ifr) = CTAN( k(ifr,NLAY)*d(NLAY-1)*sinth(iang,NLAY) )
+         tankd(iang,ifr) = TAN( k(ifr,NLAY)*d(NLAY-1)*sinth(iang,NLAY) )
          znlay(iang,ifr)  = zz(iang,NLAY)
          znlay1(iang,ifr) = zz(iang,NLAY+1)
 
          zin(iang,ifr) = znlay(iang,ifr)*(znlay1(iang,ifr)-CMPLX(0._RP,1._RP,RP)*znlay(iang,ifr)*tankd(iang,ifr))/ &
                         (znlay(iang,ifr) - CMPLX(0._RP,1._RP,RP)*znlay1(iang,ifr)*tankd(iang,ifr))
          DO il = NLAY,3,-1
-            tankd(iang,ifr) = CTAN( k(ifr,il-1)*d(il-2)*sinth(iang,il-1) )
+!            tankd(iang,ifr) = CTAN( k(ifr,il-1)*d(il-2)*sinth(iang,il-1) )
+            tankd(iang,ifr) = TAN( k(ifr,il-1)*d(il-2)*sinth(iang,il-1) )
             zin(iang,ifr) = zz(iang,il-1)*(zin(iang,ifr) -CMPLX(0._RP,1._RP,RP)*zz(iang,il-1)*tankd(iang,ifr))/ &
                            (zz(iang,il-1) - CMPLX(0._RP,1._RP,RP)*zin(iang,ifr)*tankd(iang,ifr));
          ENDDO
@@ -2627,7 +2629,8 @@ ELSE
    tankdtmp = ktmp*d(NLAY-1)*thtmp
    DO i = 1,nfrq
       DO j = 1,NANG
-         tankd(i,j) = CTAN( tankdtmp(i,j) )
+!         tankd(i,j) = CTAN( tankdtmp(i,j) )
+         tankd(i,j) = TAN( tankdtmp(i,j) )
       ENDDO
    ENDDO
 
@@ -2648,7 +2651,8 @@ ELSE
       tankdtmp = ktmp*d(i-2)*thtmp
       DO l = 1,nfrq
          DO j = 1,NANG
-            tankd(l,j) = CTAN( tankdtmp(l,j) )
+!            tankd(l,j) = CTAN( tankdtmp(l,j) )
+            tankd(l,j) = TAN( tankdtmp(l,j) )
          ENDDO
       ENDDO
       zm1 = z(i-1,:,:)
@@ -2767,7 +2771,8 @@ ELSE
    tankdtmp = ktmp*d(NLAY-1)*thtmp
    DO i = 1,nfrq
       DO j = 1,NANG
-         tankd(i,j) = CTAN( tankdtmp(i,j) )
+!         tankd(i,j) = CTAN( tankdtmp(i,j) )
+         tankd(i,j) = TAN( tankdtmp(i,j) )
       ENDDO
    ENDDO
 
@@ -2788,7 +2793,8 @@ ELSE
       tankdtmp = ktmp*d(i-2)*thtmp
       DO l = 1,nfrq
          DO j = 1,NANG
-            tankd(l,j) = CTAN( tankdtmp(l,j) )
+!            tankd(l,j) = CTAN( tankdtmp(l,j) )
+            tankd(l,j) = TAN( tankdtmp(l,j) )
          ENDDO
       ENDDO
       zm1 = z(i-1,:,:)
