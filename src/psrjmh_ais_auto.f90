@@ -3716,21 +3716,21 @@ RETURN
 END FUNCTION CSIN
 
 
-!==============================================================================
-FUNCTION CTAN(z)
-!==============================================================================
-!! Complex TAN
-
-USE DATA_TYPE
-COMPLEX(KIND=RP) :: CTAN
-COMPLEX(KIND=RP) :: z
-
-CTAN =  -CMPLX(0._RP,1._RP,RP)*(EXP( CMPLX(0._RP,1._RP,RP)*z) -EXP(-CMPLX(0._RP,1._RP,RP)*z)) &
-                            /(EXP( CMPLX(0._RP,1._RP,RP)*z)+EXP(-CMPLX(0._RP,1._RP,RP)*z))
-RETURN
-END FUNCTION CTAN
-
-!=======================================================================
+!!$!==============================================================================
+!!$FUNCTION CTAN(z)
+!!$!==============================================================================
+!!$!! Complex TAN
+!!$
+!!$USE DATA_TYPE
+!!$COMPLEX(KIND=RP) :: CTAN
+!!$COMPLEX(KIND=RP) :: z
+!!$
+!!$CTAN =  -CMPLX(0._RP,1._RP,RP)*(EXP( CMPLX(0._RP,1._RP,RP)*z) -EXP(-CMPLX(0._RP,1._RP,RP)*z)) &
+!!$                            /(EXP( CMPLX(0._RP,1._RP,RP)*z)+EXP(-CMPLX(0._RP,1._RP,RP)*z))
+!!$RETURN
+!!$END FUNCTION CTAN
+!!$
+!!$!=======================================================================
 
 Function LOGPLUS(x,y)
 !=======================================================================
