@@ -4,7 +4,7 @@
 ##
 ## With full optimization KISPIOX
 #FC      = mpif90 -Kieee -C -Mchkfpstk -traceback
-FC      = mpif90 -fast -O4 -Kieee #-C -Mchkfpstk -traceback
+FC      = mpif90 -fc=pgfortran -fast -O4 -Kieee #-C -Mchkfpstk -traceback
 ## With full optimization HOMATHKO
 #FC      = mpif90 -Kieee
 ## With full optimization STIKINE
