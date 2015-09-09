@@ -4,7 +4,7 @@
 ##
 ## With full optimization KISPIOX
 #FC      = mpif90 -Kieee -C -Mchkfpstk -traceback
-#FC      = mpif90 -fc=pgfortran -fast -O4 -Kieee #-C -Mchkfpstk -traceback
+FC      = mpif90 -fc=pgfortran -fast -O4 -Kieee #-C -Mchkfpstk -traceback
 ## With full optimization HOMATHKO
 #FC      = mpif90 -Kieee
 ## With full optimization STIKINE
@@ -13,9 +13,9 @@
 ## Without optimization
 #FC      = mpif90 -O1 -vec-report0 -std03 -debug
 ## Gfortran 
-DB       = -Wall -Wextra -ffpe-trap=zero,overflow,underflow -fbounds-check \
+#DB       = -Wall -Wextra -ffpe-trap=zero,overflow,underflow -fbounds-check \
 	   -fbacktrace -O0 -g #Warning flags
-FC       = mpif90 $(DB)
+#FC       = mpif90 $(DB)
 
 
 ##############################################################################
@@ -39,6 +39,7 @@ clean.done:
 	rm -f bin/*
 	rm -f *.o *.mod $(OBJ)/*
 	rm -f $(INC)/*.mod
+	rm -f make.log
 ##############################################################################
 #
 # Targets for linking of programs:
@@ -80,6 +81,21 @@ $(OBJ)/rjmcmc_com.o: rjmcmc_com.f90 $(OBJ)/data_type.o $(INC)/data_type.mod
 $(OBJ)/utils.o: utils.f90 $(OBJ)/data_type.o $(INC)/data_type.mod $(OBJ)/rjmcmc_com.o $(INC)/rjmcmc_com.mod
 	$(FC) -c -o $(OBJ)/utils.o utils.f90 -I$(INC)
 	mv utils.mod $(INC)
+##############################################################################
+#
+# Targets for headers:
+$(INC)/data_type.mod: data_type.f90
+	$(FC) -c -o $(OBJ)/data_type.o data_type.f90
+	mv data_type.mod $(INC) 
+$(INC)/rjmcmc_com.mod: rjmcmc_com.f90 $(OBJ)/data_type.o $(INC)/data_type.mod
+	$(FC) -c -o $(OBJ)/rjmcmc_com.o rjmcmc_com.f90 -I$(INC)
+	mv rjmcmc_com.mod $(INC)
+$(INC)/utils.mod: utils.f90 $(OBJ)/data_type.o $(INC)/data_type.mod $(OBJ)/rjmcmc_com.o $(INC)/rjmcmc_com.mod
+	$(FC) -c -o $(OBJ)/utils.o utils.f90 -I$(INC)
+	mv utils.mod $(INC)
+##############################################################################
+
+
 ##############################################################################
 #
 # Targets for separate subroutines:
