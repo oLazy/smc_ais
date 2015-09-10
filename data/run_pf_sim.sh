@@ -1,4 +1,4 @@
-#PBS -l nodes=12:ppn=8
+#PBS -l nodes=18:ppn=8
 #PBS -l walltime=336:00:00
 #PBS -j oe
 

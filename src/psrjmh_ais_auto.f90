@@ -1889,6 +1889,7 @@ TYPE(objstruc),DIMENSION(NPART):: particles
 CHARACTER(len=64):: samplefiletmp
 CHARACTER(len=64):: pingfilebasetmp
 CHARACTER(len=64):: filebasechckpt
+LOGICAL          :: logFileExist
 
 logfile         = filebasegl(1:filebaselengl) // '_SRJMH.log'
 seedfile        = filebasegl(1:filebaselengl) // '_seeds.log'
@@ -1913,8 +1914,16 @@ IF(icheckpoint == 1)THEN
 ELSE
   !! Set starting ping to last ping considered
   IF(rank == src)THEN
-    OPEN(NEWUNIT(ulog),FILE=logfile,FORM='formatted',STATUS='OLD',ACTION='WRITE',POSITION='APPEND')
-    IF(rank == src)WRITE(ulog,*) 'RJMCMC restarted after checkpoint on',NTHREAD,' cores for ping ',ipingst
+    ! eric: if the logfile doesn't exist open a new one (useful to start from an old distribution if the log file is lost)
+    INQUIRE(FILE=logfile,EXIST=logFileExist)	
+    IF (logFileExist) THEN
+      OPEN(NEWUNIT(ulog),FILE=logfile,FORM='formatted',STATUS='OLD',ACTION='WRITE',POSITION='APPEND')
+      IF(rank == src)WRITE(ulog,*) 'RJMCMC restarted after checkpoint on',NTHREAD,' cores for ping ',ipingst
+    ELSE
+      OPEN(NEWUNIT(ulog),FILE=logfile,FORM='formatted',STATUS='NEW',ACTION='WRITE')
+      IF(rank == src)WRITE(ulog,*) 'RJMCMC restarted after checkpoint on',NTHREAD,' cores for ping ',ipingst,'. Brand new .log file (to be tested, ndEric).'
+
+    ENDIF
   ENDIF
 ENDIF
 

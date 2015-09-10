@@ -3,7 +3,7 @@ p001_1000_2400_init.txt     !! particle_init_file
 1                           !! ICOV      Sigma: 1=Sample, 2=from ping ave, 3=from ping ave & scale fact (parameter)
 1                           !! ENOS      0 = uniform prior on k; 1 = Apply even-numbered order statistics
 1                           !! IPOIPR    1 = Apply Poisson prior on k
-0                           !! IAIS      0 = Apply rjMCMC on small No. particles; 1 = Apply AIS; 
+1                           !! IAIS      0 = Apply rjMCMC on small No. particles; 1 = Apply AIS; 
 0                           !! IdB       1=Carry out computation in dB
 1                           !! ISETSEED  Fix the random seed 
 0                           !! INODATA   Sample prior without data
@@ -14,7 +14,7 @@ p001_1000_2400_init.txt     !! particle_init_file
 1                           !! NPAVE     Skip pings
 3                           !! NBAL      No. steps to balance at each AIS temp (if fail, increases by factor 1.3)
 4                           !! NPL       No. parameters per layer
-5                           !! NPING     No. of pings
+50                          !! NPING     No. of pings
 1000                        !! NPART     No. of particles
 1000                        !! NPARTAIS  No. of particles to perform AIS on
 10                          !! MCMC_BI   No. balance steps in traget region burn-in (exits if target reached)
