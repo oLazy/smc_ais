@@ -176,10 +176,20 @@ PING_LOOP:DO iping = 2,NPING
    !! Eric: Should probably use OpenMP to parallelize the logL comp loop...
    !! (so that it is at least parallel on the node the master is on)
    !!
+   !! print*, 'filter_init'
+
+   
    CALL FILTER_INIT(particles(1:NPART),particles_new(1:NPARTAIS),obj,dat(iiping),&
         iiping,beta1,beta4)
    particles(1:NPARTAIS) = particles_new(1:NPARTAIS)
+
+
+   !! print*, 'filter_init: out'
+   !!
+   !!
    CALL MPI_BARRIER(MPI_COMM_WORLD,ierr)
+
+
    !!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!!
    !!
    !! rjMCMC for subset of particles (NPARTAIS)
@@ -285,12 +295,68 @@ IF(rank==src)CLOSE(ulog)  !! Closing log file
 CALL MPI_FINALIZE( ierr ) 
 END PROGRAM SRJMCMC_PLANE
 !=======================================================================
-
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
+!=======================================================================
 SUBROUTINE FILTER_INIT(particles,particles_new,obj,dat,iiping,beta1,beta4)
 !=======================================================================
 USE MPI
+USE OMP_LIB
 USE RJMCMC_COM
 USE M_VALMED
+USE UTILS
 IMPLICIT NONE
 INTRINSIC RANDOM_NUMBER, RANDOM_SEED
 
@@ -300,6 +366,10 @@ INTEGER(KIND=IB)  :: isource,nfailtmp,irealloc
 INTEGER(KIND=IB)  :: ifr
 INTEGER(KIND=IB),DIMENSION(NLMX)      :: kcount
 INTEGER(KIND=IB),DIMENSION(NPART,NLMX):: kidx
+
+!OMP STUFF
+INTEGER :: OMP_N_THREADS
+
 
 TYPE(objstruc)                         :: obj           !! Objects in RJMH chain
 TYPE(objstruc),DIMENSION(NPART)        :: particles     !! All particles (current ping)
@@ -339,21 +409,34 @@ IF(rank==src)THEN
   !ENDDO
   !particles = particles_old
 
+
   kmintmp = NLMX
   kmaxtmp = 0
-PARTICLE_LOOP:  DO ipart = 1,NPART
-    !! Compute likelihoods for new ping for all particles
-    IF(INODATA == 0)THEN
-      CALL LOGLHOOD(particles(ipart),dat)
-    ELSE
-      CALL LOGLHOOD2(particles(ipart))
-    ENDIF
-    !! Compute particle log-weights (given by logL)
-    particles(ipart)%logwt = particles(ipart)%logL
-    kmintmp = MIN(kmintmp,particles(ipart)%k)
-    kmaxtmp = MAX(kmaxtmp,particles(ipart)%k)
- END DO PARTICLE_LOOP 
+  OMP_N_THREADS = OMP_GET_MAX_THREADS()
+  
+  !$OMP PARALLEL DO
 
+  PARTICLE_LOOP:  DO ipart = 1,NPART
+     !! Compute likelihoods for new ping for all particles
+     IF(INODATA == 0)THEN
+        CALL LOGLHOOD(particles(ipart),dat)
+     ELSE
+        CALL LOGLHOOD2(particles(ipart))
+     ENDIF
+     !! Compute particle log-weights (given by logL)
+     particles(ipart)%logwt = particles(ipart)%logL
+  
+  END DO PARTICLE_LOOP
+  !$OMP END PARALLEL DO
+
+
+  ! to find the max and min for k I put this part out of the main parallel cycle (eric)
+  DO ipart = 1,NPART
+     kmintmp = MIN(kmintmp,particles(ipart)%k)
+     kmaxtmp = MAX(kmaxtmp,particles(ipart)%k)
+  END DO
+  ! done ! 
+  
   IF(kmintmp > 1)    kmintmp = kmintmp - 1
   IF(kmaxtmp < NLMX) kmaxtmp = kmaxtmp + 1
 
@@ -368,25 +451,42 @@ PARTICLE_LOOP:  DO ipart = 1,NPART
   !! Resample new set of particles according to weight
   !! resampled array is stored in particles_new
   !!
-  CALL RESAMPLE_ALL_K(particles(1:NPART),particles_new(1:NPARTAIS),NPART,NPARTAIS)
+  !  print*, 'resample'
+  !  print*, 'test: NPARTAIS = ', NPARTAIS
 
+  !! eric's resampler
+  ! 'w' means that particles are sesampled according to their weigth (logL)
+  ! 'kdist' means that the starting sample and the final one have a similar distribution for k
+
+  particles_new(1:NPARTAIS) = RESAMPLE(particles,NPART,NPARTAIS,'w','kdist')
+ 
+
+  !! jan version
+  !!   CALL RESAMPLE_ALL_K(particles(1:NPART),particles_new(1:NPARTAIS),NPART,NPARTAIS)
+  !! 
+  
+  
   !!
   !! Estimate target logL region
   !!
   logLmin = HUGE(1._RP)
   logLmax = -HUGE(1._RP)
+
+  !$OMP PARALLEL DO
   DO ipart = 1,NPARTAIS
-    IF(INODATA == 0)THEN
-      CALL LOGLHOOD(particles_new(ipart),dat)
-    ELSE
-      CALL LOGLHOOD2(particles_new(ipart))
-    ENDIF
-    IF(particles_new(ipart)%logL > logLmax)logLmax = particles_new(ipart)%logL
-    IF(particles_new(ipart)%logL < logLmin)logLmin = particles_new(ipart)%logL
-    DO ifr = 1,NBAND
-      sdtmp(ipart,ifr) = particles_new(ipart)%sdpar(ifr)
-    ENDDO
+     IF(INODATA == 0)THEN
+        CALL LOGLHOOD(particles_new(ipart),dat)
+     ELSE
+        CALL LOGLHOOD2(particles_new(ipart))
+     ENDIF
+     IF(particles_new(ipart)%logL > logLmax)logLmax = particles_new(ipart)%logL
+     IF(particles_new(ipart)%logL < logLmin)logLmin = particles_new(ipart)%logL
+     DO ifr = 1,NBAND
+        sdtmp(ipart,ifr) = particles_new(ipart)%sdpar(ifr)
+     ENDDO
   ENDDO
+  !$OMP END PARALLEL DO
+  
   DO ifr = 1,NBAND
     sdmead(ifr) = VALMED(sdtmp(:,ifr))
     logLtrgttmp(ifr) = -(REAL(NANG,RP)/2._RP)*LOG(2._RP*PI) -(REAL(NANG,RP)*LOG(sdtrgt(ifr))+REAL(NANG,RP)/2._RP)

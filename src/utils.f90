@@ -19,7 +19,7 @@ contains
     character :: mode
     character(len=5) :: k_mode
 
-    type(objstruc), dimension(newSize) :: newSample
+    type(objstruc), dimension(:),allocatable :: newSample
     !! dummy arguments
 
     integer(kind=ib), dimension(oldSize) :: kk
@@ -32,8 +32,10 @@ contains
     real(kind=rp) :: sumVr , lknorm
     integer(kind=ib) :: maxK
     real(kind=rp) :: r1, r2
-
     
+    if(.not.allocated(newSample))allocate(newSample(newSize))
+
+    !    print*, 'resample: in module'    
     do i = 1,oldSize
        kk(i) = oldSample(i)%k
     end do
@@ -43,6 +45,7 @@ contains
     allocate(findit(oldSize,maxK))
     allocate(cs(maxK))
     allocate(lkcum(oldSize,maxK))    
+    print*, 'resample: arrays allocated!'
     
     sumVr =  1._rp/oldSize
     v = 0;
@@ -57,6 +60,7 @@ contains
              case ('n','N')
                 findit(j,i) = 1._rp
              case ('w','W')
+!                print*, 'resample: w case'    
                 findit(j,i) = exp(oldSample(j)%logL)
              case('t')
                 findit(j,i) = oldSample(j)%logL
@@ -99,20 +103,34 @@ contains
           end select
        end if
     end do
-    
 
+    
+    !!! CRASH AFTER THIS POINT
     do i = 1,newSize
+       print*, 'i = ', i
        call random_number(r1)
+       print*, 'r1 = ', r1
 !       r1 = rand();
        jdo: do j = 1,maxK
+          print*, 'j = ', j
+          print*, 'cs(j) = ', cs(j)
           if(r1 <= cs(j)) then
+!             print*, i+1,' test'
+ !            newSample(i+1)%k = j
+  !           print*, i+1,' test: passed!'
+             print*, 'in the if construct!'
+   !          print*, 'i = ', i
+    !         print*, 'size(newSample) = ', size(newSample)
              newSample(i)%k = j; !%newSample containst the number of particle per k
              exit jdo
+             print*, 'out of jdo cycle'
           end if
        end do jdo
     end do
-
+    !!! CRASH BEFORE THIS POINT
     select case (k_mode)
+
+
     case('fixed')
        if (newSize.ne.oldSize) then
           print*, 'error in module utils.f90 - k_mode = fixed'
@@ -133,6 +151,7 @@ contains
           
        
     case ('kdist')
+       print*, 'resample: in kdist'    
        i_do: do i = 1,newSize
           call random_number(r1)
           j_do: do j = 1,maxK
@@ -149,11 +168,13 @@ contains
           end do j_do
        end do i_do
     end select
-    
+
+    print*, 'resample: before deallocate calls'    
     deallocate(v)
     deallocate(findit)
     deallocate(cs)
     deallocate(lkcum)  
+    print*, 'resample: exit'
     return
   end function resample
 
