@@ -115,7 +115,7 @@ MODULE RJMCMC_COM
 !!
 !!  Structures for objects and data 
 !!
-   TYPE :: objstruc
+   TYPE objstruc
       REAL(KIND=RP),ALLOCATABLE,DIMENSION(:):: par     !! Forward parameters
       REAL(KIND=RP),ALLOCATABLE,DIMENSION(:):: sdpar   !! Std dev parameters
       REAL(KIND=RP),ALLOCATABLE,DIMENSION(:):: z       !! Depth partition

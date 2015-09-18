@@ -3,14 +3,15 @@
 ## Jan Dettmer jand@uvic.ca 2007
 ##
 ## With full optimization KISPIOX
-#FC      = mpif90 -Kieee -C -Mchkfpstk -traceback
-FC      = mpif90 -fc=pgfortran -fast -O4 -Kieee #-C -Mchkfpstk -traceback
+FC      = mpif90 -Kieee -C -mp -Mchkfpstk -traceback
+#FC      = mpif90 -fc=pgfortran -fast -O4 -Kieee#-C -Mchkfpstk -traceback
 ## With full optimization HOMATHKO
 #FC      = mpif90 -Kieee
 ## With full optimization STIKINE
 #FC      = mpif90 -O3 -vec-report0 -axS -xS -opt-mem-bandwidth2 -ip -std03
 
 ## Without optimization
+#FC       = mpif90 -Kieee -O0 -g -gopt -Mbounds -traceback
 #FC      = mpif90 -O1 -vec-report0 -std03 -debug
 ## Gfortran 
 #DB       = -Wall -Wextra -ffpe-trap=zero,overflow,underflow -fbounds-check \

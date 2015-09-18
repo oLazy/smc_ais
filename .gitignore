@@ -1,2 +1,5 @@
 *.o
 *.mod
+*particles*
+*.log
+*.sh.o*
