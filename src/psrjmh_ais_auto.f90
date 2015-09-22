@@ -222,7 +222,7 @@ PING_LOOP:DO iping = 2,NPING
                CALL CHECK_MINMAX(particles(1:NPARTAIS),NPARTAIS)
                WRITE(ulog,*)'After resampling:'
                CALL CHECK_MINMAX(particles_new(1:NPARTAIS),NPARTAIS)
-               particles(1:NPARTAIS) = particles_new(1:NPARTAIS)
+               particles(1:NPARTAIS) = particles_new(1:PARTAIS)
             END IF
             CALL CHECK_TRGT_AIS(particles_new(1:NPARTAIS),NPARTAIS,beta1,beta4,iiping,itry)
             IF(iskipais == 1)EXIT
