@@ -15,10 +15,10 @@ p044_1000_2400_particles.txt     !! particle_init_file
 3                                !! NBAL      No. steps to balance at each AIS temp (if fail, increases by factor 1.3)
 4                                !! NPL       No. parameters per layer
 55                               !! NPING     No. of pings
-10000                            !! NPART     No. of particles
-4000                             !! NPARTAIS  No. of particles to perform AIS on
-1000                             !! MCMC_BI   No. balance steps in traget region burn-in (exits if target reached)
-3000                             !! MCMC_STEPS No.balance steps in traget region (always does these)
+1000                             !! NPART     No. of particles
+400                              !! NPARTAIS  No. of particles to perform AIS on
+10                               !! MCMC_BI   No. balance steps in traget region burn-in (exits if target reached)
+30                               !! MCMC_STEPS No.balance steps in traget region (always does these)
 20                               !! NTEMP     No. temperature steps for initial AIS (if fail, increases by factor 3)
 3                                !! NCOOLTRAJ No. cooling trajectories to try before giving up
 5.0                              !! npercnt   Percent of particles that must be in logL target region
